@@ -6,10 +6,10 @@ SmartTransit Hyderabad is a civic-tech web application designed to improve the d
 
 The platform combines:
 
-* GTFS timetable intelligence,
-* route traversal logic,
-* machine learning delay estimation,
-* and predictive ETA generation
+* GTFS timetable intelligence
+* route traversal logic
+* machine learning delay estimation
+* predictive ETA generation
 
 to provide commuters with smarter and more reliable train arrival information.
 
@@ -19,18 +19,18 @@ to provide commuters with smarter and more reliable train arrival information.
 
 MMTS commuters in Hyderabad often face uncertainty regarding:
 
-* train arrival timings,
-* operational delays,
-* downstream ETAs,
-* and route planning.
+* train arrival timings
+* operational delays
+* downstream ETAs
+* route planning.
 
 Public timetable information only provides scheduled timings and lacks predictive operational intelligence.
 
 SmartTransit Hyderabad addresses this problem by building a lightweight predictive transit system capable of:
 
-* identifying the next available train,
-* estimating operational delays,
-* and generating predicted ETAs for downstream stations.
+* identifying the next available train
+* estimating operational delays
+* generating predicted ETAs for downstream stations
 
 ---
 
@@ -38,10 +38,10 @@ SmartTransit Hyderabad addresses this problem by building a lightweight predicti
 
 The application uses:
 
-1. Official GTFS timetable data for MMTS schedules and routes.
-2. Historical railway delay patterns for operational delay modeling.
-3. Machine Learning (Random Forest Regression) for delay estimation.
-4. Dynamic ETA generation for downstream stations.
+1. Official GTFS timetable data for MMTS schedules and routes
+2. Historical railway delay patterns for operational delay modeling
+3. Machine Learning (Random Forest Regression) for delay estimation
+4. Dynamic ETA generation for downstream stations
 
 ---
 
@@ -51,9 +51,9 @@ The application uses:
 
 Users can:
 
-* select a departure station,
-* enter the current time,
-* and instantly find the next available MMTS train.
+* select a departure station
+* enter the current time
+* instantly find the next available MMTS train
 
 ---
 
