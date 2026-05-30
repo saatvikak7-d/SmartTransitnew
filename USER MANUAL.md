@@ -1,148 +1,131 @@
-# AGENTS.md
+# USER MANUAL
 
-# SmartTransit Hyderabad — Agent Overview
+# 🚆 SmartTransit Hyderabad User Manual
 
-This document describes the major software agents/modules used in SmartTransit Hyderabad.
+Welcome to SmartTransit Hyderabad — an AI-powered MMTS train ETA prediction system.
 
----
+This application helps commuters:
 
-# 🚆 Timetable Agent (`timetable.py`)
-
-## Purpose
-
-Responsible for:
-
-* MMTS schedule retrieval,
-* route traversal,
-* train lookup,
-* downstream station discovery.
-
-## Responsibilities
-
-* identify next train,
-* retrieve station schedules,
-* provide route information.
-
-## Core Functions
-
-* `get_next_train()`
-* `get_remaining_stops()`
-* `get_train_schedule()`
-* `get_all_stations()`
+* find the next available MMTS train,
+* estimate operational delays,
+* and view predicted arrival times for downstream stations.
 
 ---
 
-# 🤖 Delay Prediction Agent (`delay_model.py`)
+# 🖥️ Launching the Application
 
-## Purpose
+Run the application locally using:
 
-Responsible for:
+```bash
+streamlit run app.py
+```
 
-* operational delay estimation,
-* ML inference,
-* railway behavior simulation.
-
-## ML Model
-
-Random Forest Regressor
-
-## Inputs
-
-* hour of day,
-* station load,
-* route complexity,
-* operational assumptions.
-
-## Outputs
-
-* predicted delay in minutes.
-
-## Core Functions
-
-* `generate_delay_features()`
-* `predict_delay()`
+The app will open in your browser automatically.
 
 ---
 
-# ⏱️ ETA Generation Agent (`eta.py`)
+# 📍 Using the Application
 
-## Purpose
+## Step 1 — Select Departure Station
 
-Responsible for:
+Use the dropdown menu to choose your current MMTS station.
 
-* combining timetable information with delay predictions,
-* generating commuter-facing ETAs.
-
-## Responsibilities
-
-* apply delay adjustments,
-* generate predicted arrival/departure times,
-* create final ETA tables.
-
-## Core Functions
-
-* `adjust_arrival_times()`
-* `generate_eta_table()`
-
----
-
-# 🖥️ UI Agent (`app.py`)
-
-## Purpose
-
-Responsible for:
-
-* user interaction,
-* Streamlit interface rendering,
-* displaying ETA results.
-
-## Responsibilities
-
-* collect user input,
-* trigger backend pipelines,
-* render ETA tables and train information.
-
----
-
-# 📊 Data Sources
-
-## GTFS MMTS Dataset
-
-Used for:
-
-* train schedules,
-* routes,
-* station sequences.
-
-## Railway Delay Dataset
-
-Used for:
-
-* historical operational delay behavior,
-* ML model training.
-
----
-
-# 🔄 Agent Workflow
+Example:
 
 ```text
-User Input
-    ↓
-Timetable Agent
-    ↓
-Delay Prediction Agent
-    ↓
-ETA Generation Agent
-    ↓
-UI Agent
+BMT (Begumpet)
 ```
 
 ---
 
-# 🎯 System Goal
+## Step 2 — Enter Current Time
 
-Provide Hyderabad MMTS commuters with:
+Enter the current time in:
 
-* smarter ETA estimation,
-* operational delay awareness,
-* and improved public transit accessibility.
+```text
+HH:MM:SS
+```
+
+Example:
+
+```text
+18:10:00
+```
+
+---
+
+## Step 3 — Find Next Train
+
+Click:
+
+```text
+Find Next Train
+```
+
+The application will:
+
+1. identify the next available train,
+2. predict operational delay,
+3. generate ETA estimates for downstream stations.
+
+---
+
+# 📊 Understanding the Output
+
+The application displays:
+
+## 🚆 Train Information
+
+* Train ID
+* Predicted operational delay
+
+---
+
+## 📍 ETA Table
+
+| Column              | Meaning               |
+| ------------------- | --------------------- |
+| stop_id             | MMTS station code     |
+| arrival_time        | scheduled arrival     |
+| predicted_arrival   | ML-adjusted ETA       |
+| departure_time      | scheduled departure   |
+| predicted_departure | ML-adjusted departure |
+
+---
+
+# ⚠️ Delay Predictions
+
+Delay predictions are generated using:
+
+* timetable information,
+* historical railway operational patterns,
+* and machine learning estimation.
+
+Predictions are probabilistic and intended for demonstration purposes.
+
+---
+
+# 🛠️ Troubleshooting
+
+## No trains found
+
+* ensure the time format is correct,
+* try another station/time.
+
+---
+
+## App does not launch
+
+Ensure dependencies are installed:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 📌 Notes
+
+* This application currently uses static GTFS schedule data.
+* Live MMTS telemetry is not currently integrated.
+* ETA predictions are generated using historical railway delay behavior.
