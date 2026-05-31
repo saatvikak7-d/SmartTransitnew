@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 # =========================================================
@@ -11,6 +10,42 @@ stop_times = pd.read_csv(
 
 trips = pd.read_csv(
     "data/trips.txt"
+)
+
+# =========================================================
+# CLEAN COLUMN NAMES
+# =========================================================
+
+stop_times.columns = (
+    stop_times.columns
+    .str.strip()
+)
+
+trips.columns = (
+    trips.columns
+    .str.strip()
+)
+
+# =========================================================
+# CLEAN STRING COLUMNS
+# =========================================================
+
+stop_times["stop_id"] = (
+    stop_times["stop_id"]
+    .astype(str)
+    .str.strip()
+)
+
+stop_times["trip_id"] = (
+    stop_times["trip_id"]
+    .astype(str)
+    .str.strip()
+)
+
+trips["trip_id"] = (
+    trips["trip_id"]
+    .astype(str)
+    .str.strip()
 )
 
 # ======================================================
@@ -31,14 +66,21 @@ def fix_time(t):
 
     return f"{h:02d}:{m:02d}:{s:02d}"
 
+# =========================================================
+# CLEAN TIME COLUMNS
+# =========================================================
 
 stop_times["arrival_time"] = (
     stop_times["arrival_time"]
+    .astype(str)
+    .str.strip()
     .apply(fix_time)
 )
 
 stop_times["departure_time"] = (
     stop_times["departure_time"]
+    .astype(str)
+    .str.strip()
     .apply(fix_time)
 )
 
@@ -89,6 +131,22 @@ merged = pd.merge(
 )
 
 # =========================================================
+# CLEAN MERGED DATA
+# =========================================================
+
+merged["stop_id"] = (
+    merged["stop_id"]
+    .astype(str)
+    .str.strip()
+)
+
+merged["trip_id"] = (
+    merged["trip_id"]
+    .astype(str)
+    .str.strip()
+)
+
+# =========================================================
 # GET NEXT TRAIN
 # =========================================================
 
@@ -103,19 +161,31 @@ def get_next_train(
     the specified time.
     """
 
+    station = str(
+        station
+    ).strip()
+
     current_time = pd.to_datetime(
         current_time,
         format="%H:%M:%S"
     )
 
     station_data = merged[
-        merged["stop_id"] == station
+        merged["stop_id"]
+        .str.strip()
+        == station
     ].copy()
+
+    # DEBUG
+    print("Selected station:", station)
+    print("Rows found:", len(station_data))
 
     upcoming = station_data[
         station_data["arrival_time"]
         >= current_time
     ]
+
+    print("Upcoming trains:", len(upcoming))
 
     if upcoming.empty:
         return None
@@ -142,8 +212,13 @@ def get_remaining_stops(
     for a given train trip.
     """
 
+    trip_id = str(
+        trip_id
+    ).strip()
+
     route = merged[
-        merged["trip_id"] == trip_id
+        merged["trip_id"]
+        == trip_id
     ].copy()
 
     remaining = route[
@@ -183,6 +258,7 @@ def get_all_stations():
 
     stations = sorted(
         merged["stop_id"]
+        .dropna()
         .unique()
     )
 
@@ -201,8 +277,13 @@ def get_train_schedule(
     for a train trip.
     """
 
+    trip_id = str(
+        trip_id
+    ).strip()
+
     schedule = merged[
-        merged["trip_id"] == trip_id
+        merged["trip_id"]
+        == trip_id
     ].copy()
 
     schedule = schedule.sort_values(
