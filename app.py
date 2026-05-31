@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 
+st.write("APP RUNNING")
 from utils.timetable import (
     get_all_stations
 )
