@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 
-st.write("APP RUNNING")
 from utils.timetable import (
     get_all_stations
 )
@@ -52,13 +51,14 @@ st.title("🚆 SmartTransit Hyderabad")
 
 st.markdown(
     """
-    Intelligent MMTS Transit Prediction System
+    ## Intelligent MMTS Transit Prediction System
 
-    Features:
+    SmartTransit Hyderabad combines:
     - ML-powered delay prediction
-    - timetable traversal
-    - live station visualization
-    - weather-aware operational alerts
+    - GTFS timetable traversal
+    - weather-aware operational intelligence
+    - interactive station visualization
+    - downstream ETA forecasting
     """
 )
 
@@ -76,7 +76,11 @@ try:
 
     temperature = weather["main"]["temp"]
 
-    col1, col2 = st.columns(2)
+    humidity = weather["main"]["humidity"]
+
+    wind_speed = weather["wind"]["speed"]
+
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
 
@@ -90,6 +94,20 @@ try:
         st.metric(
             "Temperature",
             f"{temperature} °C"
+        )
+
+    with col3:
+
+        st.metric(
+            "Humidity",
+            f"{humidity}%"
+        )
+
+    with col4:
+
+        st.metric(
+            "Wind Speed",
+            f"{wind_speed} m/s"
         )
 
     # WEATHER ALERTS
@@ -109,7 +127,7 @@ try:
     else:
 
         st.success(
-            "Weather conditions are favorable."
+            "✅ Weather conditions are favorable."
         )
 
 except:
@@ -122,7 +140,7 @@ except:
 # SIDEBAR INPUTS
 # =========================================================
 
-st.sidebar.header("Journey Input")
+st.sidebar.header("🚉 Journey Input")
 
 stations = get_all_stations()
 
@@ -133,11 +151,11 @@ selected_station = st.sidebar.selectbox(
 
 selected_time = st.sidebar.text_input(
     "Current Time (HH:MM:SS)",
-    "18:10:00"
+    "16:00:00"
 )
 
 find_train = st.sidebar.button(
-    "Find Next Train"
+    "🚆 Find Next Train"
 )
 
 # =========================================================
@@ -152,27 +170,15 @@ show_station_map()
 # MAIN APP LOGIC
 # =========================================================
 
-# =========================================================
-# MAIN APP LOGIC
-# =========================================================
-
 if find_train:
 
-    st.write("BUTTON CLICKED")
-
-    with st.spinner("Finding next train..."):
-
-        st.write("CALLING ETA")
+    with st.spinner("🚆 Finding next train..."):
 
         results = generate_eta_table(
             selected_station,
             selected_time
         )
 
-        st.write("ETA COMPLETE")
-
-        st.write(results)
-
     # -----------------------------------------------------
     # NO TRAIN FOUND
     # -----------------------------------------------------
@@ -180,14 +186,22 @@ if find_train:
     if results is None:
 
         st.error(
-            "No upcoming trains found."
+            "❌ No upcoming trains found for this station and time."
+        )
+
+        st.info(
+            "Try selecting an earlier time or another station."
         )
 
     else:
 
+        # -------------------------------------------------
+        # TRAIN OVERVIEW
+        # -------------------------------------------------
+
         st.subheader("🚆 Next Available Train")
 
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
         with col1:
 
@@ -203,101 +217,17 @@ if find_train:
                 value=f'{results["predicted_delay"]:.2f} min'
             )
 
-        st.subheader("📍 Predicted Arrival Times")
+        with col3:
 
-        eta_table = results["eta_table"].copy()
-
-        eta_table["arrival_time"] = (
-            eta_table["arrival_time"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["departure_time"] = (
-            eta_table["departure_time"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["predicted_arrival"] = (
-            eta_table["predicted_arrival"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["predicted_departure"] = (
-            eta_table["predicted_departure"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        st.dataframe(
-            eta_table,
-            use_container_width=True
-        )
-
-    # -----------------------------------------------------
-    # NO TRAIN FOUND
-    # -----------------------------------------------------
-
-    if results is None:
-
-        st.error(
-            "No upcoming trains found."
-        )
-
-    else:
-
-        # -------------------------------------------------
-        # TRAIN INFO
-        # -------------------------------------------------
-
-        st.subheader("🚆 Next Available Train")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            st.metric(
-                label="Train ID",
-                value=results["train_id"]
+            punctuality = max(
+                100 - results["predicted_delay"] * 5,
+                50
             )
 
-        with col2:
-
             st.metric(
-                label="Predicted Delay",
-                value=f'{results["predicted_delay"]:.2f} min'
+                label="Punctuality Score",
+                value=f"{punctuality:.0f}%"
             )
-
-        # -------------------------------------------------
-        # ETA TABLE
-        # -------------------------------------------------
-
-        st.subheader("📍 Predicted Arrival Times")
-
-        eta_table = results["eta_table"].copy()
-
-        eta_table["arrival_time"] = (
-            eta_table["arrival_time"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["departure_time"] = (
-            eta_table["departure_time"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["predicted_arrival"] = (
-            eta_table["predicted_arrival"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        eta_table["predicted_departure"] = (
-            eta_table["predicted_departure"]
-            .dt.strftime("%H:%M:%S")
-        )
-
-        st.dataframe(
-            eta_table,
-            use_container_width=True
-        )
 
         # -------------------------------------------------
         # DELAY INSIGHT
@@ -312,13 +242,166 @@ if find_train:
         elif results["predicted_delay"] > 5:
 
             st.warning(
-                "Moderate delays expected."
+                "⚠ Moderate delays expected."
             )
 
         else:
 
             st.success(
-                "Train expected to run near schedule."
+                "✅ Train expected to run near schedule."
+            )
+
+        # -------------------------------------------------
+        # ETA TABLE
+        # -------------------------------------------------
+
+        st.subheader("📍 Predicted Arrival Timeline")
+
+        eta_table = results["eta_table"].copy()
+
+        eta_table["arrival_time"] = (
+            eta_table["arrival_time"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["departure_time"] = (
+            eta_table["departure_time"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["predicted_arrival"] = (
+            eta_table["predicted_arrival"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["predicted_departure"] = (
+            eta_table["predicted_departure"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        st.dataframe(
+            eta_table,
+            use_container_width=True
+        )
+
+        # -------------------------------------------------
+        # ROUTE SUMMARY
+        # -------------------------------------------------
+
+        st.subheader("🛤 Route Summary")
+
+        final_stop = eta_table.iloc[-1]["stop_id"]
+
+        final_arrival = eta_table.iloc[-1][
+            "predicted_arrival"
+        ]
+
+        total_stops = len(eta_table)
+
+        st.info(
+            f"""
+            🚉 Final Destination: {final_stop}
+
+            ⏰ Estimated Final Arrival:
+            {final_arrival}
+
+            📍 Remaining Stops:
+            {total_stops}
+            """
+        )
+
+        # -------------------------------------------------
+        # DOWNLOAD ETA FEATURE
+        # -------------------------------------------------
+
+        csv = eta_table.to_csv(
+            index=False
+        ).encode("utf-8")
+
+        st.download_button(
+            label="⬇ Download ETA Predictions",
+            data=csv,
+            file_name="mmts_eta_predictions.csv",
+            mime="text/csv"
+        )
+
+        # -------------------------------------------------
+        # CROWD LEVEL ESTIMATION
+        # -------------------------------------------------
+
+        st.subheader("🚶 Estimated Crowd Density")
+
+        if total_stops > 15:
+
+            st.warning(
+                "High passenger traffic expected."
+            )
+
+        elif total_stops > 8:
+
+            st.info(
+                "Moderate passenger traffic expected."
+            )
+
+        else:
+
+            st.success(
+                "Low passenger traffic expected."
+            )
+
+        # -------------------------------------------------
+        # TRANSIT RELIABILITY INDEX
+        # -------------------------------------------------
+
+        st.subheader("📈 Transit Reliability Index")
+
+        reliability_score = max(
+            100
+            - (
+                results["predicted_delay"] * 4
+                + total_stops * 1.2
+            ),
+            35
+        )
+
+        if reliability_score >= 85:
+
+            reliability_status = "Excellent"
+
+            st.success(
+                f"Reliability Score: {reliability_score:.0f}/100 • {reliability_status}"
+            )
+
+        elif reliability_score >= 70:
+
+            reliability_status = "Good"
+
+            st.info(
+                f"Reliability Score: {reliability_score:.0f}/100 • {reliability_status}"
+            )
+
+        elif reliability_score >= 50:
+
+            reliability_status = "Moderate"
+
+            st.warning(
+                f"Reliability Score: {reliability_score:.0f}/100 • {reliability_status}"
+            )
+
+        else:
+
+            reliability_status = "Poor"
+
+            st.error(
+                f"Reliability Score: {reliability_score:.0f}/100 • {reliability_status}"
+            )
+
+        # EXTRA INSIGHT
+
+        if reliability_score < 60:
+
+            st.info(
+                "Consider planning buffer time due to operational uncertainty."
             )
 
 # =========================================================
@@ -334,16 +417,28 @@ else:
         1. Select your departure station  
         2. Enter the current time  
         3. Click **Find Next Train**  
-        4. View predicted ETAs for downstream stations
+        4. View downstream ETA predictions
 
         ---
 
-        ### Technology Stack
+        ## Features
 
-        - GTFS timetable data
-        - ML-based delay prediction
-        - route traversal engine
-        - live weather monitoring
-        - interactive MMTS network visualization
+        - 🚆 Real-time train lookup
+        - 🤖 ML-powered delay prediction
+        - 🌤 Weather-aware alerts
+        - 🗺 Interactive MMTS station map
+        - 📊 ETA forecasting
+        - 📥 Downloadable schedules
+        - 🚶 Crowd density estimation
+        - 📈 Transit reliability scoring
+
+        ---
+
+        Built using:
+        - Streamlit
+        - Pandas
+        - GTFS transit data
+        - Scikit-learn
+        - Folium maps
         """
     )
