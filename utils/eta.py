@@ -63,6 +63,7 @@ def generate_eta_table(
         station,
         current_time
     )
+    print("Next train:", next_train)
 
     if next_train is None:
         return None
