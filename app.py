@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -15,15 +14,34 @@ from utils.eta import (
     generate_eta_table
 )
 
-# =======================================================
+# =========================================================
 # PAGE CONFIG
-# =======================================================
+# =========================================================
 
 st.set_page_config(
     page_title="SmartTransit Hyderabad",
     page_icon="🚆",
     layout="wide"
 )
+
+# =========================================================
+# WEATHER FUNCTION
+# =========================================================
+
+def get_weather():
+
+    API_KEY = st.secrets["WEATHER_API_KEY"]
+
+    url = (
+        f"https://api.openweathermap.org/data/2.5/weather"
+        f"?q=Hyderabad"
+        f"&appid={API_KEY}"
+        f"&units=metric"
+    )
+
+    response = requests.get(url)
+
+    return response.json()
 
 # =========================================================
 # TITLE
@@ -33,10 +51,13 @@ st.title("🚆 SmartTransit Hyderabad")
 
 st.markdown(
     """
-    Predict MMTS train arrival times using:
-    - timetable intelligence
-    - route traversal
-    - ML-powered delay estimation
+    Intelligent MMTS Transit Prediction System
+
+    Features:
+    - ML-powered delay prediction
+    - timetable traversal
+    - live station visualization
+    - weather-aware operational alerts
     """
 )
 
@@ -118,9 +139,17 @@ find_train = st.sidebar.button(
     "Find Next Train"
 )
 
-# ========================================================
+# =========================================================
+# STATION MAP
+# =========================================================
+
+st.subheader("🗺 MMTS Station Network")
+
+show_station_map()
+
+# =========================================================
 # MAIN APP LOGIC
-# ========================================================
+# =========================================================
 
 if find_train:
 
@@ -147,7 +176,7 @@ if find_train:
         # TRAIN INFO
         # -------------------------------------------------
 
-        st.subheader("Next Available Train")
+        st.subheader("🚆 Next Available Train")
 
         col1, col2 = st.columns(2)
 
@@ -169,11 +198,10 @@ if find_train:
         # ETA TABLE
         # -------------------------------------------------
 
-        st.subheader("Predicted Arrival Times")
+        st.subheader("📍 Predicted Arrival Times")
 
         eta_table = results["eta_table"].copy()
 
-        # format datetime columns nicely
         eta_table["arrival_time"] = (
             eta_table["arrival_time"]
             .dt.strftime("%H:%M:%S")
@@ -205,13 +233,13 @@ if find_train:
 
         if results["predicted_delay"] > 10:
 
-            st.warning(
-                "High operational delay expected."
+            st.error(
+                "⚠ High operational delay expected."
             )
 
         elif results["predicted_delay"] > 5:
 
-            st.info(
+            st.warning(
                 "Moderate delays expected."
             )
 
@@ -238,9 +266,12 @@ else:
 
         ---
 
-        This project combines:
+        ### Technology Stack
+
         - GTFS timetable data
-        - Route traversal logic
-        - Machine learning delay estimation
+        - ML-based delay prediction
+        - route traversal engine
+        - live weather monitoring
+        - interactive MMTS network visualization
         """
     )
