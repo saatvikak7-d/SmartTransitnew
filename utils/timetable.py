@@ -155,39 +155,62 @@ def get_next_train(
     current_time
 ):
 
-    """
-    Finds the next available train
-    from a given station after
-    the specified time.
-    """
+    station = str(station).strip()
 
-    station = str(
-        station
-    ).strip()
+    print("SELECTED:", station)
+
+    print(
+        "ALL STATIONS:",
+        merged["stop_id"]
+        .unique()[:20]
+    )
+
+    station_data = merged[
+        merged["stop_id"]
+        .astype(str)
+        .str.strip()
+        == station
+    ].copy()
+
+    print(
+        "STATION DATA SIZE:",
+        len(station_data)
+    )
+
+    if station_data.empty:
+
+        print("NO STATION MATCH")
+
+        return None
+
+    print(
+        station_data[
+            [
+                "stop_id",
+                "arrival_time"
+            ]
+        ].head()
+    )
 
     current_time = pd.to_datetime(
         current_time,
         format="%H:%M:%S"
     )
 
-    station_data = merged[
-        merged["stop_id"]
-        .str.strip()
-        == station
-    ].copy()
-
-    # DEBUG
-    print("Selected station:", station)
-    print("Rows found:", len(station_data))
-
     upcoming = station_data[
         station_data["arrival_time"]
         >= current_time
     ]
 
-    print("Upcoming trains:", len(upcoming))
+    print(
+        "UPCOMING SIZE:",
+        len(upcoming)
+    )
 
     if upcoming.empty:
+
+        print("NO UPCOMING TRAINS")
+
         return None
 
     next_train = (
@@ -195,6 +218,8 @@ def get_next_train(
         .sort_values("arrival_time")
         .iloc[0]
     )
+
+    print("FOUND TRAIN")
 
     return next_train
 
