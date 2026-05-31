@@ -1,9 +1,13 @@
-
 import streamlit as st
 import pandas as pd
+import requests
 
 from utils.timetable import (
     get_all_stations
+)
+
+from utils.map_view import (
+    show_station_map
 )
 
 from utils.eta import (
@@ -21,6 +25,25 @@ st.set_page_config(
 )
 
 # =========================================================
+# WEATHER FUNCTION
+# =========================================================
+
+def get_weather():
+
+    API_KEY = st.secrets["WEATHER_API_KEY"]
+
+    url = (
+        f"https://api.openweathermap.org/data/2.5/weather"
+        f"?q=Hyderabad"
+        f"&appid={API_KEY}"
+        f"&units=metric"
+    )
+
+    response = requests.get(url)
+
+    return response.json()
+
+# =========================================================
 # TITLE
 # =========================================================
 
@@ -28,12 +51,71 @@ st.title("🚆 SmartTransit Hyderabad")
 
 st.markdown(
     """
-    Predict MMTS train arrival times using:
-    - timetable intelligence
-    - route traversal
-    - ML-powered delay estimation
+    Intelligent MMTS Transit Prediction System
+
+    Features:
+    - ML-powered delay prediction
+    - timetable traversal
+    - live station visualization
+    - weather-aware operational alerts
     """
 )
+
+# =========================================================
+# WEATHER ALERTS
+# =========================================================
+
+st.subheader("🌤 Current Weather Conditions")
+
+try:
+
+    weather = get_weather()
+
+    weather_main = weather["weather"][0]["main"]
+
+    temperature = weather["main"]["temp"]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Weather",
+            weather_main
+        )
+
+    with col2:
+
+        st.metric(
+            "Temperature",
+            f"{temperature} °C"
+        )
+
+    # WEATHER ALERTS
+
+    if weather_main in ["Rain", "Thunderstorm"]:
+
+        st.warning(
+            "⚠ Rain detected. MMTS delays may increase."
+        )
+
+    elif weather_main in ["Mist", "Fog"]:
+
+        st.warning(
+            "⚠ Low visibility conditions detected."
+        )
+
+    else:
+
+        st.success(
+            "Weather conditions are favorable."
+        )
+
+except:
+
+    st.info(
+        "Unable to fetch weather data."
+    )
 
 # =========================================================
 # SIDEBAR INPUTS
@@ -56,6 +138,14 @@ selected_time = st.sidebar.text_input(
 find_train = st.sidebar.button(
     "Find Next Train"
 )
+
+# =========================================================
+# STATION MAP
+# =========================================================
+
+st.subheader("🗺 MMTS Station Network")
+
+show_station_map()
 
 # =========================================================
 # MAIN APP LOGIC
@@ -86,7 +176,7 @@ if find_train:
         # TRAIN INFO
         # -------------------------------------------------
 
-        st.subheader("Next Available Train")
+        st.subheader("🚆 Next Available Train")
 
         col1, col2 = st.columns(2)
 
@@ -108,11 +198,10 @@ if find_train:
         # ETA TABLE
         # -------------------------------------------------
 
-        st.subheader("Predicted Arrival Times")
+        st.subheader("📍 Predicted Arrival Times")
 
         eta_table = results["eta_table"].copy()
 
-        # format datetime columns nicely
         eta_table["arrival_time"] = (
             eta_table["arrival_time"]
             .dt.strftime("%H:%M:%S")
@@ -144,13 +233,13 @@ if find_train:
 
         if results["predicted_delay"] > 10:
 
-            st.warning(
-                "High operational delay expected."
+            st.error(
+                "⚠ High operational delay expected."
             )
 
         elif results["predicted_delay"] > 5:
 
-            st.info(
+            st.warning(
                 "Moderate delays expected."
             )
 
@@ -177,9 +266,12 @@ else:
 
         ---
 
-        This project combines:
+        ### Technology Stack
+
         - GTFS timetable data
-        - Route traversal logic
-        - Machine learning delay estimation
+        - ML-based delay prediction
+        - route traversal engine
+        - live weather monitoring
+        - interactive MMTS network visualization
         """
     )
