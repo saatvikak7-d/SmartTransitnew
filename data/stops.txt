@@ -1,4 +1,4 @@
- stop_id,stop_name,stop_code,stop_lat,stop_lon
+stop_id,stop_name,stop_code,stop_lat,stop_lon
 RCPT,RAMACHANDRAPURAM TS,RCPT,17.511305,78.28248
 BHEL,BHEL HALT,BHEL,17.502301,78.282051
 TLPR,TELAPUR,TLPR,17.474877,78.284883
