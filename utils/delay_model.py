@@ -13,6 +13,7 @@ if not os.path.exists(MODEL_PATH):
 
 # LOAD SAVED MODEL
 delay_model = joblib.load(MODEL_PATH)
+print("Delay model loaded successfully")
 
 # STATION TRAFFIC STATISTICS
 station_frequency = (
