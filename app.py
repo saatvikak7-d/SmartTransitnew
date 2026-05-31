@@ -7,6 +7,10 @@ from utils.timetable import (
     get_all_stations
 )
 
+from utils.map_view import (
+    show_station_map
+)
+
 from utils.eta import (
     generate_eta_table
 )
