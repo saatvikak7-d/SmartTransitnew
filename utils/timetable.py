@@ -155,21 +155,27 @@ def get_next_train(
     current_time
 ):
 
-    station = str(station).strip()
+    print("===================================")
 
-    print("SELECTED:", station)
+    print("SELECTED STATION:", station)
+
+    print("INPUT TIME:", current_time)
+
+    current_time = pd.to_datetime(
+        current_time,
+        format="%H:%M:%S"
+    )
+
+    print("PARSED TIME:", current_time)
 
     print(
-        "ALL STATIONS:",
+        "AVAILABLE STATIONS:",
         merged["stop_id"]
         .unique()[:20]
     )
 
     station_data = merged[
-        merged["stop_id"]
-        .astype(str)
-        .str.strip()
-        == station
+        merged["stop_id"] == station
     ].copy()
 
     print(
@@ -189,12 +195,7 @@ def get_next_train(
                 "stop_id",
                 "arrival_time"
             ]
-        ].head()
-    )
-
-    current_time = pd.to_datetime(
-        current_time,
-        format="%H:%M:%S"
+        ].head(10)
     )
 
     upcoming = station_data[
@@ -220,6 +221,8 @@ def get_next_train(
     )
 
     print("FOUND TRAIN")
+
+    print(next_train)
 
     return next_train
 
