@@ -41,6 +41,62 @@ st.markdown(
 )
 
 # =========================================================
+# WEATHER ALERTS
+# =========================================================
+
+st.subheader("🌤 Current Weather Conditions")
+
+try:
+
+    weather = get_weather()
+
+    weather_main = weather["weather"][0]["main"]
+
+    temperature = weather["main"]["temp"]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Weather",
+            weather_main
+        )
+
+    with col2:
+
+        st.metric(
+            "Temperature",
+            f"{temperature} °C"
+        )
+
+    # WEATHER ALERTS
+
+    if weather_main in ["Rain", "Thunderstorm"]:
+
+        st.warning(
+            "⚠ Rain detected. MMTS delays may increase."
+        )
+
+    elif weather_main in ["Mist", "Fog"]:
+
+        st.warning(
+            "⚠ Low visibility conditions detected."
+        )
+
+    else:
+
+        st.success(
+            "Weather conditions are favorable."
+        )
+
+except:
+
+    st.info(
+        "Unable to fetch weather data."
+    )
+
+# =========================================================
 # SIDEBAR INPUTS
 # =========================================================
 
