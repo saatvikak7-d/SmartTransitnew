@@ -152,13 +152,84 @@ show_station_map()
 # MAIN APP LOGIC
 # =========================================================
 
+# =========================================================
+# MAIN APP LOGIC
+# =========================================================
+
 if find_train:
 
+    st.write("BUTTON CLICKED")
+
     with st.spinner("Finding next train..."):
+
+        st.write("CALLING ETA")
 
         results = generate_eta_table(
             selected_station,
             selected_time
+        )
+
+        st.write("ETA COMPLETE")
+
+        st.write(results)
+
+    # -----------------------------------------------------
+    # NO TRAIN FOUND
+    # -----------------------------------------------------
+
+    if results is None:
+
+        st.error(
+            "No upcoming trains found."
+        )
+
+    else:
+
+        st.subheader("🚆 Next Available Train")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            st.metric(
+                label="Train ID",
+                value=results["train_id"]
+            )
+
+        with col2:
+
+            st.metric(
+                label="Predicted Delay",
+                value=f'{results["predicted_delay"]:.2f} min'
+            )
+
+        st.subheader("📍 Predicted Arrival Times")
+
+        eta_table = results["eta_table"].copy()
+
+        eta_table["arrival_time"] = (
+            eta_table["arrival_time"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["departure_time"] = (
+            eta_table["departure_time"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["predicted_arrival"] = (
+            eta_table["predicted_arrival"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        eta_table["predicted_departure"] = (
+            eta_table["predicted_departure"]
+            .dt.strftime("%H:%M:%S")
+        )
+
+        st.dataframe(
+            eta_table,
+            use_container_width=True
         )
 
     # -----------------------------------------------------
