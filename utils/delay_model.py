@@ -114,6 +114,7 @@ def predict_delay(
     predicted_delay = delay_model.predict(
         features
     )[0]
+    print("Predict delay called")
 
     # prevent negative delay
     predicted_delay = max(
